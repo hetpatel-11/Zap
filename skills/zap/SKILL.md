@@ -157,13 +157,13 @@ CDP injection is in-memory — it disappears when the app restarts.
 
 **Option A: Save a patch file**
 ```bash
-node ~/Desktop/zap/patches/codex.js
+node /path/to/your/patch.js
 ```
 
 **Option B: Shell alias that reopens + re-injects**
 ```bash
 # Add to ~/.zshrc
-alias codex='pkill -x Codex; sleep 0.5; open -a Codex --args --remote-debugging-port=9222; sleep 3; node ~/Desktop/zap/patches/codex.js'
+alias codex='pkill -x Codex; sleep 0.5; open -a Codex --args --remote-debugging-port=9222; sleep 3; node /path/to/your/patch.js'
 ```
 
 ## App-Specific Notes
