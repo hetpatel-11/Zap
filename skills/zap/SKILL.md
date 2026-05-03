@@ -7,6 +7,33 @@ description: Customize any running Electron desktop app (Slack, Codex, VS Code, 
 
 Customize any Electron desktop app live using the Chrome DevTools Protocol (CDP). No file modification, no restarts, no sudo. Changes appear instantly in the running app.
 
+## IMPORTANT: Default workflow for ANY app
+
+Never guess CSS class names. Every Electron app has a different structure. Always follow this order:
+
+1. Connect to the app via CDP
+2. Dump the live DOM to discover real selectors
+3. Only then write and inject CSS/JS
+
+Use this snippet to inspect any unknown app first:
+
+```js
+// Step 1 — find what elements exist related to the user's request
+expression: `
+  Array.from(document.querySelectorAll('*'))
+    .filter(el => el.className && typeof el.className === 'string')
+    .filter(el => el.className.match(/sidebar|panel|nav|left|right|drawer|rail/i))
+    .map(el => el.tagName + ' classes: ' + el.className.substring(0, 100))
+    .slice(0, 20)
+    .join('\\n')
+`
+
+// Step 2 — inspect the layout container
+expression: `document.body.innerHTML.substring(0, 4000)`
+```
+
+Then use what you find to write precise CSS targeting real class names from the live app.
+
 ## How It Works
 
 Every Electron app is built on Chromium. When launched with `--remote-debugging-port=9222`, it exposes a WebSocket API that lets you run JavaScript inside its renderer process — the same way browser DevTools work, but programmatically from outside the app.
