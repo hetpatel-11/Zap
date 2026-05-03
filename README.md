@@ -33,10 +33,10 @@ The `skills/` folder contains agent skill files that teach any coding agent (Cla
 ### Install the skill (Claude Code)
 
 ```bash
-/plugin install zap
+npx skills add https://github.com/hetpatel-11/Zap --skill zap
 ```
 
-Or copy `skills/electron-patch/SKILL.md` into your agent's skills directory.
+Or copy `skills/zap/SKILL.md` into your agent's skills directory manually.
 
 ## patches/
 
@@ -44,4 +44,4 @@ Save your app customizations here as reusable patch scripts. Run them anytime to
 
 ## License
 
-Apache 2.0
+MIT

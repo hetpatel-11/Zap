@@ -1,5 +1,5 @@
 ---
-name: electron-patch
+name: zap
 description: Customize any running Electron desktop app (Slack, Codex, VS Code, Discord, Notion, etc.) live without modifying app files. Use when the user wants to change how an Electron app looks or behaves — move panels, change fonts, hide elements, inject features, restyle UI — all applied instantly via Chrome DevTools Protocol (CDP) while the app is running.
 ---
 
