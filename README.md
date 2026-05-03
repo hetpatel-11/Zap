@@ -1,5 +1,7 @@
 # zap ⚡
 
+![Zap Banner](assets/banner.png)
+
 Customize any running Electron desktop app live — no file editing, no restarts, no sudo.
 
 Zap uses the Chrome DevTools Protocol (CDP) to inject CSS and JavaScript directly into the renderer process of any Electron app while it's running. Just describe what you want changed and it happens instantly.
