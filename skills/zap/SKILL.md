@@ -178,20 +178,81 @@ div.textContent = 'Hello from Zap!';
 document.body.appendChild(div);
 ```
 
-## Persisting Patches Across Restarts
+## Persisting Patches
 
-CDP injection is in-memory — it disappears when the app restarts.
+CDP injection is **in-memory only** — it disappears on app restart or update. If the user asks to keep a change saved, follow these instructions based on their scenario:
 
-**Option A: Save a patch file**
-```bash
-node /path/to/your/patch.js
+### Scenario 1: User wants changes to survive restarts
+
+Save the patch as a named script file and create a shell alias that auto-relaunches the app with the debug port open and re-injects the patch every time.
+
+**Step 1 — Save the patch as a script** (e.g. `~/patches/appname.js`):
+```js
+const WebSocket = require('ws');
+const http = require('http');
+
+const CSS = `/* the user's CSS here */`;
+
+function getTargets() {
+  return new Promise((resolve, reject) => {
+    http.get('http://localhost:9222/json', (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => resolve(JSON.parse(data)));
+    }).on('error', reject);
+  });
+}
+
+async function inject() {
+  const targets = await getTargets();
+  const page = targets.find(t => t.type === 'page');
+  if (!page) return console.error('App not found on debug port');
+  const ws = new WebSocket(page.webSocketDebuggerUrl);
+  ws.on('open', () => {
+    ws.send(JSON.stringify({
+      id: 1,
+      method: 'Runtime.evaluate',
+      params: {
+        expression: `
+          (function() {
+            const el = document.getElementById('__zap__');
+            if (el) el.remove();
+            const s = document.createElement('style');
+            s.id = '__zap__';
+            s.textContent = ${JSON.stringify(CSS)};
+            document.head.appendChild(s);
+            return 'injected';
+          })()
+        `
+      }
+    }));
+  });
+  ws.on('message', (data) => {
+    const msg = JSON.parse(data);
+    if (msg.result?.result?.value === 'injected') { console.log('Patch applied!'); ws.close(); }
+  });
+}
+
+inject();
 ```
 
-**Option B: Shell alias that reopens + re-injects**
+**Step 2 — Create a shell alias** so every time the user opens the app it auto-patches:
 ```bash
-# Add to ~/.zshrc
-alias codex='pkill -x Codex; sleep 0.5; open -a Codex --args --remote-debugging-port=9222; sleep 3; node /path/to/your/patch.js'
+# Add to ~/.zshrc (replace AppName and patch path)
+alias appname='pkill -x "AppName" 2>/dev/null; sleep 0.5; open -a "AppName" --args --remote-debugging-port=9222; sleep 3; node ~/patches/appname.js'
 ```
+
+Then run `source ~/.zshrc` to activate. From now on the user just types `appname` in their terminal and it opens already patched.
+
+### Scenario 2: User wants changes to survive app updates
+
+App updates don't affect the patch script — the CSS/JS lives in the patch file on disk, not inside the app. As long as:
+- The patch script is saved (Scenario 1 above)
+- The alias is set up
+
+...updates are transparent. The app updates, the user reopens via alias, patches re-inject automatically.
+
+The only time an update breaks a patch is if the app **changes its DOM structure or class names** — in that case, re-inspect the DOM and update the CSS selectors in the patch file.
 
 ## App-Specific Notes
 
