@@ -16,29 +16,18 @@ Every Electron app runs on Chromium. Launching it with `--remote-debugging-port=
 
 ## Quick start
 
-```bash
-# Relaunch your app with the debug port open
-pkill -x "Codex"
-open -a Codex --args --remote-debugging-port=9222
-
-# Install the ws package if you don't have it
-npm install -g ws
-
-# Ask your AI agent to customize it, or run a patch script directly
-node patches/codex.js
-```
-
-## Skills
-
-The `skills/` folder contains agent skill files that teach any coding agent (Claude Code, Codex, etc.) how to use Zap's CDP approach. Install a skill and your agent gains the ability to customize any Electron app on demand — just describe what you want.
-
-### Install the skill (Claude Code)
+### Install the skill (Claude Code, Codex, OpenCode, etc)
 
 ```bash
 npx skills add https://github.com/hetpatel-11/Zap --skill zap
 ```
 
 Or copy `skills/zap/SKILL.md` into your agent's skills directory manually.
+
+## Skills
+
+The `skills/` folder contains agent skill files that teach any coding agent (Claude Code, Codex, etc.) how to use Zap's CDP approach. Install a skill and your agent gains the ability to customize any Electron app on demand — just describe what you want.
+
 
 ## patches/
 
