@@ -14,6 +14,26 @@ Slack, Codex, VS Code, Discord, Notion, Cursor, Linear, and more.
 
 Every Electron app runs on Chromium. Launching it with `--remote-debugging-port=9222` opens a WebSocket API — the same one that powers browser DevTools. Zap connects to it and injects your changes live.
 
+### The tech behind it
+
+**Chrome DevTools Protocol (CDP)** is the same protocol your browser uses internally when you open DevTools and edit CSS in the inspector. It's a WebSocket API that gives you programmatic access to the Chromium engine — running JS, injecting styles, inspecting the DOM, all of it.
+
+Since every Electron app is just Chromium + Node.js bundled together, they all support CDP out of the box. The debug port is just hidden by default.
+
+Here's what Zap does under the hood:
+
+```
+1. Relaunch the app with --remote-debugging-port=9222
+2. Hit http://localhost:9222/json to discover renderer targets
+3. Open a WebSocket connection to the page target
+4. Call Runtime.evaluate() to inject a <style> tag into the live DOM
+5. Chromium applies the CSS instantly — no reload, no restart
+```
+
+The injected style tag gets a unique ID (`__zap__`) so re-injections cleanly replace previous patches without stacking up.
+
+This works on **every Electron app ever made** — Slack, VS Code, Discord, Notion, Cursor, Linear, Codex — because they all share the same Chromium foundation. The app has no idea it happened.
+
 ## Quick start
 
 ### Install the skill (Claude Code, Codex, OpenCode, etc)
